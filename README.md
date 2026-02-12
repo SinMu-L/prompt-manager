@@ -77,3 +77,16 @@ CREATE TABLE tags (
 
 ### clerk
 配置非常简单，按照流程一步步来就行，这里不做详细说明。
+
+
+### 遇到的问题
+#### Supabase 的数据库权限问题
+进入 prompt-manange 项目 -- Authentication -- Policies -- 对应表的Create policy -- 创建策略
+![](table_Create%20policy.png)
+
+#### Supabase Bucket的权限配置问题
+
+进入 prompt-manange 项目 -- Storage -- New bucket
+1. 名字选择 prompt-manage
+2. 开启 Public bucket
+![](bucket_.png)

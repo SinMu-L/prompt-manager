@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const supabase = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
     );
 
     const { data: tags, error } = await supabase
@@ -26,10 +26,10 @@ export async function GET() {
 export async function POST(request) {
   try {
     const { name } = await request.json();
-    
+
     const supabase = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
     );
 
     const { data, error } = await supabase

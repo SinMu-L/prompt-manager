@@ -49,46 +49,50 @@ export default function Navbar() {
                 Prompt Manager
               </span>
             </Link>
-            
+
             <NavigationMenu className="hidden sm:ml-6 sm:flex">
               <NavigationMenuList className="space-x-4">
                 <NavigationMenuItem>
-                  <Link href="/prompts" legacyBehavior passHref>
-                    <NavigationMenuLink
-                      className={`${
-                        pathname === '/prompts'
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/prompts"
+                      className={`${pathname === '/prompts'
                           ? 'text-primary font-medium'
                           : 'text-muted-foreground'
-                      } flex items-center gap-1`}
+                        } flex items-center gap-1`}
                     >
                       <Library className="h-4 w-4" />
                       管理
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                
-                <NavigationMenuItem>
-                  <Link href="/prompts/new" legacyBehavior passHref>
-                    <NavigationMenuLink
-                      className={`${
-                        pathname === '/prompts/new'
-                          ? 'text-primary font-medium'
-                          : 'text-muted-foreground'
-                      } flex items-center gap-1`}
-                    >
-                      <FolderPlus className="h-4 w-4" />
-                      新建
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <Link href="https://github.com/liujuntao123/prompt-manager" target="_blank" legacyBehavior passHref>
-                    <NavigationMenuLink className="text-muted-foreground flex items-center gap-1">
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/prompts/new"
+                      className={`${pathname === '/prompts/new'
+                          ? 'text-primary font-medium'
+                          : 'text-muted-foreground'
+                        } flex items-center gap-1`}
+                    >
+                      <FolderPlus className="h-4 w-4" />
+                      新建
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="https://github.com/liujuntao123/prompt-manager"
+                      target="_blank"
+                      className="text-muted-foreground flex items-center gap-1"
+                    >
                       <Github className="h-4 w-4" />
                       GitHub
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
@@ -104,22 +108,20 @@ export default function Navbar() {
                   <div className="flex flex-col gap-4 mt-4">
                     <Link
                       href="/prompts"
-                      className={`${
-                        pathname === '/prompts'
+                      className={`${pathname === '/prompts'
                           ? 'text-primary font-medium'
                           : 'text-muted-foreground'
-                      } flex items-center gap-2`}
+                        } flex items-center gap-2`}
                     >
                       <Library className="h-4 w-4" />
                       管理
                     </Link>
                     <Link
                       href="/prompts/new"
-                      className={`${
-                        pathname === '/prompts/new'
+                      className={`${pathname === '/prompts/new'
                           ? 'text-primary font-medium'
                           : 'text-muted-foreground'
-                      } flex items-center gap-2`}
+                        } flex items-center gap-2`}
                     >
                       <FolderPlus className="h-4 w-4" />
                       新建
@@ -139,7 +141,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center">
-          <SignedOut>
+            <SignedOut>
               <SignInButton />
             </SignedOut>
             <SignedIn>

@@ -27,7 +27,8 @@ export default function NewPrompt() {
     fetch('/api/tags')
       .then((response) => response.json())
       .then((data) => {
-        setTagOptions(data.map(tag => ({ value: tag.name, label: tag.name })));
+        const tags = Array.isArray(data) ? data : [];
+        setTagOptions(tags.map(tag => ({ value: tag.name, label: tag.name })));
       })
       .catch((error) => console.error('Error fetching tags:', error));
   }, []);
@@ -65,7 +66,17 @@ export default function NewPrompt() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create prompt');
+        let errorDetails = 'Failed to create prompt';
+        try {
+          const errorBody = await res.json();
+          errorDetails = errorBody?.error || errorDetails;
+          if (errorBody?.details || errorBody?.hint || errorBody?.code) {
+            errorDetails = `${errorDetails} | details: ${errorBody?.details || 'n/a'} | hint: ${errorBody?.hint || 'n/a'} | code: ${errorBody?.code || 'n/a'}`;
+          }
+        } catch (parseError) {
+          errorDetails = `Failed to create prompt | status: ${res.status} ${res.statusText}`;
+        }
+        throw new Error(errorDetails);
       }
 
       router.push('/prompts');
@@ -82,7 +93,7 @@ export default function NewPrompt() {
       if (e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
-        
+
         // Get the input value
         const inputValue = e.target.value;
         if (inputValue) {
@@ -100,11 +111,11 @@ export default function NewPrompt() {
           },
           body: JSON.stringify({ name: inputValue }),
         });
-        
+
         if (response.ok) {
           const newOption = { value: inputValue, label: inputValue };
           setTagOptions([...tagOptions, newOption]);
-          
+
           const newTags = prompt.tags ? `${prompt.tags},${inputValue}` : inputValue;
           setPrompt({ ...prompt, tags: newTags });
         }
@@ -154,8 +165,10 @@ export default function NewPrompt() {
               <Label htmlFor="tags">标签</Label>
               <CreatableSelect
                 id="tags"
+                instanceId="tags-select"
+                inputId="tags"
                 isMulti
-                value={prompt.tags?prompt.tags.split(',').map(tag => ({ value: tag, label: tag })):[]}
+                value={prompt.tags ? prompt.tags.split(',').map(tag => ({ value: tag, label: tag })) : []}
                 onChange={(selected) => {
                   const tags = selected ? selected.map(option => option.value).join(',') : '';
                   setPrompt({ ...prompt, tags });

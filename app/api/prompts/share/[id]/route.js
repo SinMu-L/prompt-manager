@@ -1,11 +1,14 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request, { params }) {
   const { id } = await params;
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-  const { userId } = await auth()
+  const { userId } = await auth();
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
+  );
   // 检查提示词是否存在
   const { data: prompt, error: checkError } = await supabase
     .from('prompts')
@@ -16,7 +19,7 @@ export async function POST(request, { params }) {
 
   if (checkError || !prompt) {
     return NextResponse.json(
-      { error: checkError ? checkError.message : 'Prompt not found' }, 
+      { error: checkError ? checkError.message : 'Prompt not found' },
       { status: 404 }
     );
   }
@@ -24,7 +27,7 @@ export async function POST(request, { params }) {
   // 更新 is_public 为 true
   const { error: updateError } = await supabase
     .from('prompts')
-    .update({ 
+    .update({
       is_public: true,
       updated_at: new Date().toISOString()
     })

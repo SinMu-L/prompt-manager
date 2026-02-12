@@ -1,12 +1,15 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request, { params }) {
   const { id } = await params;
-  const { userId } = await auth()
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-  
+  const { userId } = await auth();
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
+  );
+
   const { data: prompt, error } = await supabase
     .from('prompts')
     .select('*')
@@ -27,10 +30,19 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   const { id } = await params;
-  const { userId } = await auth()
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+  const { userId } = await auth();
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
+  );
 
-  const { title, content, description, is_public, tags, cover_img ,version} = await request.json();
+  const requestBody = await request.json();
+  const { title, content, description, is_public, tags, cover_img, version } = requestBody;
+  console.log('[prompts:update] request', {
+    id,
+    userId,
+    body: requestBody
+  });
 
   const { data: prompt, error } = await supabase
     .from('prompts')
@@ -40,6 +52,11 @@ export async function POST(request, { params }) {
     .single();
 
   if (error || !prompt) {
+    console.log('[prompts:update] load error', {
+      id,
+      userId,
+      error: error?.message
+    });
     return NextResponse.json({ error: error ? error.message : 'Prompt not found' }, { status: 500 });
   }
 
@@ -54,7 +71,7 @@ export async function POST(request, { params }) {
   if (is_public !== undefined) updateData.is_public = is_public;
   if (tags !== undefined) updateData.tags = tags;
   if (cover_img !== undefined) updateData.cover_img = cover_img;
-  if(version !== undefined) updateData.version = version;
+  if (version !== undefined) updateData.version = version;
 
   const { error: updateError } = await supabase
     .from('prompts')
@@ -62,16 +79,30 @@ export async function POST(request, { params }) {
     .eq('id', id);
 
   if (updateError) {
+    console.log('[prompts:update] update error', {
+      id,
+      userId,
+      updateData,
+      error: updateError.message
+    });
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
+  console.log('[prompts:update] success', {
+    id,
+    userId,
+    updateData
+  });
   return NextResponse.json({ message: 'Prompt updated successfully', version: version });
 }
 
 export async function DELETE(request, { params }) {
   const { id } = await params;
-  const { userId } = await auth()
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+  const { userId } = await auth();
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
+  );
 
   // 检查提示词是否存在
   const { data: prompt, error: checkError } = await supabase
@@ -83,7 +114,7 @@ export async function DELETE(request, { params }) {
 
   if (checkError || !prompt) {
     return NextResponse.json(
-      { error: checkError ? checkError.message : 'Prompt not found' }, 
+      { error: checkError ? checkError.message : 'Prompt not found' },
       { status: 404 }
     );
   }
